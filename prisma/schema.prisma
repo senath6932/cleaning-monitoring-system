@@ -1,0 +1,245 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+enum TaskResult {
+  P
+  X
+  NA
+}
+
+enum ApprovalDecision {
+  APPROVED
+  REJECTED
+  CLARIFICATION_REQUESTED
+}
+
+model UserRole {
+  roleId   String @id @default(uuid())
+  roleName String @unique
+
+  users SystemUser[]
+
+  @@map("USER_ROLE")
+}
+
+model SystemUser {
+  userId       String   @id @default(uuid())
+  fullName     String
+  email        String   @unique
+  passwordHash String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  roleId String
+  role   UserRole @relation(fields: [roleId], references: [roleId])
+
+  assignments            LocationOfficer[]
+  evaluationReports      EvaluationReport[]      @relation("OfficerReports")
+  reviews                AdminReview[]           @relation("AdminReviews")
+  paymentRecommendations PaymentRecommendation[] @relation("PaymentCreators")
+  approvals              VCApproval[]            @relation("VCApprovals")
+  payments               FinancePayment[]        @relation("FinancePayments")
+
+  @@map("SYSTEM_USER")
+}
+
+model Location {
+  locationId     String   @id @default(uuid())
+  code           String   @unique
+  locationName   String
+  minWorkers     Int
+  contractAmount Decimal  @db.Decimal(12, 2)
+  isActive       Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
+
+  officers          LocationOfficer[]
+  tasks             LocationTask[]
+  evaluationReports EvaluationReport[]
+
+  @@map("LOCATION")
+}
+
+model SystemSetting {
+  settingId String @id @default(uuid())
+
+  monthlyContractAmount Decimal @db.Decimal(12, 2)
+
+  updatedAt DateTime @updatedAt
+
+  @@map("SYSTEM_SETTING")
+}
+
+model LocationOfficer {
+  assignmentId String   @id @default(uuid())
+  assignedDate DateTime @default(now())
+
+  locationId String
+  officerId  String
+
+  location Location   @relation(fields: [locationId], references: [locationId], onDelete: Cascade)
+  officer  SystemUser @relation(fields: [officerId], references: [userId])
+
+  @@map("LOCATION_OFFICER")
+}
+
+model TaskCategory {
+  categoryId   String @id @default(uuid())
+  categoryName String @unique
+
+  tasks Task[]
+
+  @@map("TASK_CATEGORY")
+}
+
+model Task {
+  taskId      String  @id @default(uuid())
+  taskName    String
+  description String?
+
+  categoryId String
+  category   TaskCategory @relation(fields: [categoryId], references: [categoryId])
+
+  locations LocationTask[]
+
+  @@map("TASK")
+}
+
+model LocationTask {
+  locationTaskId String @id @default(uuid())
+
+  locationId String
+  taskId     String
+
+  location Location @relation(fields: [locationId], references: [locationId], onDelete: Cascade)
+  task     Task     @relation(fields: [taskId], references: [taskId])
+
+  taskEvaluations TaskEvaluation[]
+
+  @@unique([locationId, taskId])
+  @@map("LOCATION_TASK")
+}
+
+model EvaluationReport {
+  reportId          String       @id @default(uuid())
+  evaluationMonth   Int
+  evaluationYear    Int
+  overallPercentage Decimal?     @db.Decimal(5, 2)
+  status            ReportStatus @default(DRAFT)
+  submittedAt       DateTime?
+  updatedAt         DateTime     @updatedAt
+
+  locationId String
+  officerId  String
+
+  location Location   @relation(fields: [locationId], references: [locationId], onDelete: Cascade)
+  officer  SystemUser @relation("OfficerReports", fields: [officerId], references: [userId])
+
+  taskEvaluations       TaskEvaluation[]
+  adminReview           AdminReview?
+  paymentRecommendation PaymentRecommendation?
+
+  @@unique([locationId, evaluationMonth, evaluationYear])
+  @@map("EVALUATION_REPORT")
+}
+
+model TaskEvaluation {
+  taskEvaluationId String @id @default(uuid())
+
+  evaluationDate DateTime
+  result         TaskResult
+  percentage     Decimal?   @db.Decimal(5, 2)
+
+  reportId       String
+  locationTaskId String
+
+  report       EvaluationReport @relation(fields: [reportId], references: [reportId], onDelete: Cascade)
+  locationTask LocationTask     @relation(fields: [locationTaskId], references: [locationTaskId], onDelete: Cascade)
+
+  @@map("TASK_EVALUATION")
+}
+
+model AdminReview {
+  reviewId   String   @id @default(uuid())
+  status     String
+  remarks    String?
+  reviewedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  reportId   String @unique
+  reviewedBy String
+
+  report   EvaluationReport @relation(fields: [reportId], references: [reportId], onDelete: Cascade)
+  reviewer SystemUser       @relation("AdminReviews", fields: [reviewedBy], references: [userId])
+
+  @@map("ADMIN_REVIEW")
+}
+
+model PaymentRecommendation {
+  recommendationId     String   @id @default(uuid())
+  completionPercentage Decimal  @db.Decimal(5, 2)
+  contractAmount       Decimal  @db.Decimal(12, 2)
+  recommendedAmount    Decimal  @db.Decimal(12, 2)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  reportId  String @unique
+  createdBy String
+
+  report     EvaluationReport @relation(fields: [reportId], references: [reportId], onDelete: Cascade)
+  creator    SystemUser       @relation("PaymentCreators", fields: [createdBy], references: [userId])
+  vcApproval VCApproval?
+
+  @@map("PAYMENT_RECOMMENDATION")
+}
+
+model VCApproval {
+  approvalId String           @id @default(uuid())
+  decision   ApprovalDecision
+  remarks    String?
+  approvedAt DateTime         @default(now())
+
+  recommendationId String @unique
+  approvedBy       String
+
+  recommendation PaymentRecommendation @relation(fields: [recommendationId], references: [recommendationId], onDelete: Cascade)
+  approver       SystemUser            @relation("VCApprovals", fields: [approvedBy], references: [userId])
+  financePayment FinancePayment?
+
+  @@map("VC_APPROVAL")
+}
+
+model FinancePayment {
+  paymentId   String   @id @default(uuid())
+  voucherNo   String?
+  chequeNo    String?
+  paidAmount  Decimal  @db.Decimal(12, 2)
+  paymentDate DateTime
+
+  approvalId  String @unique
+  processedBy String
+
+  approval  VCApproval @relation(fields: [approvalId], references: [approvalId], onDelete: Cascade)
+  processor SystemUser @relation("FinancePayments", fields: [processedBy], references: [userId])
+
+  @@map("FINANCE_PAYMENT")
+}
