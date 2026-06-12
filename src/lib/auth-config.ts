@@ -1,4 +1,4 @@
-import { AuthOptions } from "next-auth";
+import type { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { findUserByEmail, verifyPassword } from "./auth";
 
@@ -6,10 +6,9 @@ export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
-
       credentials: {
-        email: {},
-        password: {},
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
 
       async authorize(credentials) {
@@ -17,11 +16,9 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
-        const user = await findUserByEmail(
-          credentials.email
-        );
+        const user = await findUserByEmail(credentials.email);
 
-        if (!user) {
+        if (!user || !user.isActive) {
           return null;
         }
 
@@ -35,11 +32,12 @@ export const authOptions: AuthOptions = {
         }
 
         return {
-          id: user.userId,
+          id: user.id,
           name: user.fullName,
           email: user.email,
           role: user.role.roleName,
-        };
+          designation: user.designation,
+        } as any;
       },
     }),
   ],
@@ -55,7 +53,9 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role ?? (user as any).roleName;
+        token.id = (user as any).id;
+        token.role = (user as any).role;
+        token.designation = (user as any).designation;
       }
 
       return token;
@@ -63,10 +63,17 @@ export const authOptions: AuthOptions = {
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as string;
+        (session.user as any).id = token.id as string;
+        (session.user as any).role = token.role as string;
+        (session.user as any).designation = token.designation as
+          | string
+          | null
+          | undefined;
       }
 
       return session;
     },
   },
+
+  secret: process.env.NEXTAUTH_SECRET,
 };

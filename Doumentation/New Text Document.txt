@@ -1,0 +1,10 @@
+The GAA account was created successfully.
+
+Credentials:
+
+Email: gaa@wusl.lk
+Password: gaa123
+
+evaluating officer
+eva@wusl.lk
+eva1234

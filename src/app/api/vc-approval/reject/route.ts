@@ -1,27 +1,100 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import {
+  createActivityLog,
+  getCurrentUser,
+  notifyRole,
+} from "@/lib/workflow";
 
 export async function POST(req: NextRequest) {
   try {
-    const { recommendationId, remarks } = await req.json();
-
-    const vc = await prisma.systemUser.findFirst();
+    const vc = await getCurrentUser("Vice Chancellor");
 
     if (!vc) {
       return NextResponse.json(
-        { message: "VC not found" },
+        { message: "Access denied" },
+        { status: 403 }
+      );
+    }
+
+    const { recommendationId, remarks } = await req.json();
+
+    if (!remarks?.trim()) {
+      return NextResponse.json(
+        { message: "Remarks are required for rejection" },
         { status: 400 }
       );
     }
 
-    const approval = await prisma.vCApproval.create({
-      data: {
+    const recommendation =
+      await prisma.paymentRecommendation.findFirst({
+        where: {
+          recommendationId,
+          status: "VC_PENDING",
+          report: {
+            status: "VC_PENDING",
+          },
+        },
+      });
+
+    if (!recommendation) {
+      return NextResponse.json(
+        { message: "Pending recommendation not found" },
+        { status: 404 }
+      );
+    }
+
+    const approval = await prisma.vCApproval.upsert({
+      where: {
         recommendationId,
-        approvedBy: vc.userId,
+      },
+      create: {
+        recommendationId,
+        approvedBy: vc.id,
         decision: "REJECTED",
         remarks,
+        approvedAt: new Date(),
+      },
+      update: {
+        approvedBy: vc.id,
+        decision: "REJECTED",
+        remarks,
+        approvedAt: new Date(),
       },
     });
+
+    await prisma.evaluationReport.update({
+      where: {
+        reportId: recommendation.reportId,
+      },
+      data: {
+        status: "VC_REJECTED",
+      },
+    });
+
+    await prisma.paymentRecommendation.update({
+      where: {
+        recommendationId,
+      },
+      data: {
+        status: "VC_REJECTED",
+      },
+    });
+
+    await notifyRole(
+      "General Administration Officer",
+      "Payment recommendation rejected",
+      "Vice Chancellor rejected a payment recommendation.",
+      recommendation.reportId
+    );
+
+    await createActivityLog(
+      vc.id,
+      "VC_REJECT_RECOMMENDATION",
+      "Vice Chancellor rejected payment recommendation",
+      "VC_APPROVAL",
+      approval.approvalId
+    );
 
     return NextResponse.json({
       success: true,
@@ -31,12 +104,8 @@ export async function POST(req: NextRequest) {
     console.error(error);
 
     return NextResponse.json(
-      {
-        message: "Reject failed",
-      },
-      {
-        status: 500,
-      }
+      { message: "Reject failed" },
+      { status: 500 }
     );
   }
 }

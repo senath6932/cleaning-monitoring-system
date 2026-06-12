@@ -3,20 +3,26 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { locationId: string } }
+  context: { params: Promise<{ locationId: string }> }
 ) {
   try {
+    const { locationId } = await context.params;
     const body = await req.json();
 
-    const { locationName, minWorkers } = body;
+    const { code, locationName, minWorkers, contractAmount } = body;
 
     const updated = await prisma.location.update({
       where: {
-        locationId: params.locationId,
+        locationId,
       },
       data: {
+        code,
         locationName,
         minWorkers: Number(minWorkers),
+        contractAmount:
+          contractAmount === undefined || contractAmount === ""
+            ? undefined
+            : Number(contractAmount),
       },
     });
 
@@ -32,28 +38,36 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { locationId: string } }
+  _req: Request,
+  context: { params: Promise<{ locationId: string }> }
 ) {
   try {
-    const deleted = await prisma.location.update({
+    const { locationId } = await context.params;
+
+    await prisma.location.update({
       where: {
-        locationId: params.locationId,
+        locationId,
       },
       data: {
         isActive: false,
       },
     });
 
-    return NextResponse.json(deleted);
+    return NextResponse.json({
+      success: true,
+      message: "Location deleted successfully",
+    });
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
       {
-        message: "Failed to remove location.",
+        success: false,
+        message: "Failed to delete location",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

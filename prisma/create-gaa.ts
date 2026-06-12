@@ -1,45 +1,42 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { randomUUID } from "crypto";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const role = await prisma.userRole.findFirst({
-    where: {
+  const role = await prisma.userRole.upsert({
+    where: { roleName: "General Administration Officer" },
+    update: {},
+    create: {
+      id: randomUUID(),
       roleName: "General Administration Officer",
+      roleCode: "GENERAL_ADMIN",
+      description: "Main system administrator",
     },
   });
 
-  if (!role) {
-    throw new Error(
-      "General Administration Officer role not found"
-    );
-  }
-
-  const email = "gaa@wusl.lk";
   const passwordHash = await bcrypt.hash("gaa123", 10);
 
-  const existingUser = await prisma.systemUser.findUnique({
-    where: {
-      email,
-    },
-  });
-
-  if (existingUser) {
-    console.log("GAA user already exists");
-    return;
-  }
-
-  await prisma.systemUser.create({
-    data: {
+  await prisma.systemUser.upsert({
+    where: { email: "gaa@wusl.lk" },
+    update: {
       fullName: "General Administration Officer",
-      email,
       passwordHash,
-      roleId: role.roleId,
+      roleId: role.id,
+      isActive: true,
+    },
+    create: {
+      id: randomUUID(),
+      fullName: "General Administration Officer",
+      email: "gaa@wusl.lk",
+      passwordHash,
+      roleId: role.id,
+      isActive: true,
     },
   });
 
-  console.log("GAA user created");
+  console.log("GAA account created/updated");
   console.log("Email: gaa@wusl.lk");
   console.log("Password: gaa123");
 }

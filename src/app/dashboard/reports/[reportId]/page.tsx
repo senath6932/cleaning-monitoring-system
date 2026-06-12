@@ -3,9 +3,51 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
+type ReportDetail = {
+  location: {
+    locationName: string;
+  };
+  evaluationMonth: number;
+  evaluationYear: number;
+  officer?: {
+    fullName: string;
+    designation: string | null;
+  };
+  companyAgreement?: {
+    companyName: string | null;
+    agreementNumber: string | null;
+  } | null;
+  taskEvaluations: {
+    taskEvaluationId: string;
+    result: string;
+    locationTask: {
+      task: {
+        taskName: string;
+        category: {
+          categoryName: string;
+        } | null;
+      };
+    };
+  }[];
+  paymentRecommendation?: {
+    completionPercentage: number | string;
+    contractAmount: number | string;
+    recommendedAmount: number | string;
+    vcApproval?: {
+      decision: string;
+      remarks: string | null;
+      approvedAt: string;
+    } | null;
+  } | null;
+  adminReview?: {
+    decision: string;
+    remarks: string | null;
+  } | null;
+};
+
 export default function ReportPage() {
   const params = useParams();
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState<ReportDetail | null>(null);
 
   useEffect(() => {
     if (!params.reportId) return;
@@ -29,16 +71,28 @@ export default function ReportPage() {
       </button>
 
       <h1 className="text-center text-3xl font-bold">
-        Evaluation Report
+        Wayamba University of Sri Lanka
       </h1>
+      <p className="text-center text-lg font-semibold">
+        Final Cleaning Service Evaluation Report
+      </p>
 
-      <h2 className="mt-4">
+      <h2 className="mt-6">
         Location: {report.location.locationName}
       </h2>
 
       <h2>
         Month: {report.evaluationMonth}/{report.evaluationYear}
       </h2>
+      <p>Evaluating Officer: {report.officer?.fullName}</p>
+      <p>Officer Designation: {report.officer?.designation || "-"}</p>
+      <p>
+        Company: {report.companyAgreement?.companyName || "Not Provided"}
+      </p>
+      <p>
+        Agreement No:{" "}
+        {report.companyAgreement?.agreementNumber || "Not Provided"}
+      </p>
 
       <h2 className="mt-8 mb-4 text-xl font-bold">
         Evaluation Results
@@ -54,14 +108,14 @@ export default function ReportPage() {
         </thead>
 
         <tbody>
-          {report.taskEvaluations.map((evaluation: any) => (
+          {report.taskEvaluations.map((evaluation) => (
             <tr key={evaluation.taskEvaluationId}>
               <td className="border p-2">
                 {evaluation.locationTask.task.taskName}
               </td>
 
               <td className="border p-2">
-                {evaluation.locationTask.task.category.categoryName}
+                {evaluation.locationTask.task.category?.categoryName || "-"}
               </td>
 
               <td className="border p-2 text-center">
@@ -83,7 +137,7 @@ export default function ReportPage() {
         </p>
 
         <p>
-          Contract Amount: Rs.{report.paymentRecommendation?.contractAmount}
+          Location Monthly Allocation: Rs.{report.paymentRecommendation?.contractAmount}
         </p>
 
         <p>
@@ -98,7 +152,7 @@ export default function ReportPage() {
         </h2>
 
         <p>
-          Status: {report.adminReview?.status}
+          Decision: {report.adminReview?.decision}
         </p>
 
         <p>
@@ -117,6 +171,14 @@ export default function ReportPage() {
 
         <p>
           Remarks: {report.paymentRecommendation?.vcApproval?.remarks}
+        </p>
+        <p>
+          Approval Date:{" "}
+          {report.paymentRecommendation?.vcApproval?.approvedAt
+            ? new Date(
+                report.paymentRecommendation.vcApproval.approvedAt
+              ).toLocaleString()
+            : "-"}
         </p>
       </div>
     </div>

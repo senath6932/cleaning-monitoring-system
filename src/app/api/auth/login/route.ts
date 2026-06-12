@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
   const token = jwt.sign(
     {
-      sub: user.userId,
+      sub: user.id,
       email: user.email,
       role: user.role.roleName,
     },
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.json({
     success: true,
     user: {
-      userId: user.userId,
+      userId: user.id,
       fullName: user.fullName,
       email: user.email,
       role: user.role.roleName,
@@ -103,4 +103,3 @@ export function GET() {
     { status: 405, headers: { Allow: "POST" } }
   );
 }
-

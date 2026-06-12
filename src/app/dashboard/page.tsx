@@ -16,38 +16,40 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6">
-      <h1 className="mb-6 text-3xl font-bold">Dashboard</h1>
+    <div className="p-6 bg-slate-50 min-h-screen">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-slate-800">Dashboard</h1>
+      </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="rounded border p-6 shadow">
-          <h2 className="text-lg">Total Users</h2>
-          <p className="text-3xl font-bold">{stats.totalUsers}</p>
+        <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-white border border-sky-200 p-6 shadow-md">
+          <h2 className="text-sm text-sky-700">Total Users</h2>
+          <p className="mt-3 text-4xl font-extrabold text-sky-900">{stats.totalUsers}</p>
         </div>
 
-        <div className="rounded border p-6 shadow">
-          <h2 className="text-lg">Locations</h2>
-          <p className="text-3xl font-bold">{stats.totalLocations}</p>
+        <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-white border border-sky-200 p-6 shadow-md">
+          <h2 className="text-sm text-sky-700">Locations</h2>
+          <p className="mt-3 text-4xl font-extrabold text-sky-900">{stats.totalLocations}</p>
         </div>
 
-        <div className="rounded border p-6 shadow">
-          <h2 className="text-lg">Evaluations</h2>
-          <p className="text-3xl font-bold">{stats.totalEvaluations}</p>
+        <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-white border border-sky-200 p-6 shadow-md">
+          <h2 className="text-sm text-sky-700">Evaluations</h2>
+          <p className="mt-3 text-4xl font-extrabold text-sky-900">{stats.totalEvaluations}</p>
         </div>
 
-        <div className="rounded border p-6 shadow">
-          <h2 className="text-lg">Pending Reviews</h2>
-          <p className="text-3xl font-bold">{stats.pendingReviews}</p>
+        <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-white border border-sky-200 p-6 shadow-md">
+          <h2 className="text-sm text-sky-700">Pending Reviews</h2>
+          <p className="mt-3 text-4xl font-extrabold text-sky-900">{stats.pendingReviews}</p>
         </div>
 
-        <div className="rounded border p-6 shadow">
-          <h2 className="text-lg">Pending VC Approvals</h2>
-          <p className="text-3xl font-bold">{stats.pendingVCApprovals}</p>
+        <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-white border border-sky-200 p-6 shadow-md">
+          <h2 className="text-sm text-sky-700">Pending VC Approvals</h2>
+          <p className="mt-3 text-4xl font-extrabold text-sky-900">{stats.pendingVCApprovals}</p>
         </div>
 
-        <div className="rounded border p-6 shadow">
-          <h2 className="text-lg">Approved Reports</h2>
-          <p className="text-3xl font-bold">{stats.approvedReports}</p>
+        <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-white border border-sky-200 p-6 shadow-md">
+          <h2 className="text-sm text-sky-700">Approved Reports</h2>
+          <p className="mt-3 text-4xl font-extrabold text-sky-900">{stats.approvedReports}</p>
         </div>
       </div>
     </div>

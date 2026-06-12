@@ -1,14 +1,39 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/workflow";
 
 export async function GET(
   _request: Request,
-  { params }: { params: { locationId: string } }
+  context: { params: Promise<{ locationId: string }> }
 ) {
   try {
+    const { locationId } = await context.params;
+    const officer = await getCurrentUser("Evaluating Officer");
+
+    if (!officer) {
+      return NextResponse.json(
+        { message: "Access denied" },
+        { status: 403 }
+      );
+    }
+
+    const assignment = await prisma.locationOfficer.findFirst({
+      where: {
+        officerId: officer.id,
+        locationId,
+      },
+    });
+
+    if (!assignment) {
+      return NextResponse.json(
+        { message: "You are not assigned to this location" },
+        { status: 403 }
+      );
+    }
+
     const tasks = await prisma.locationTask.findMany({
       where: {
-        locationId: params.locationId,
+        locationId,
       },
       include: {
         task: {

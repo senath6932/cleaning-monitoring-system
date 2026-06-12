@@ -3,11 +3,29 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
+type VCRecommendation = {
+  recommendationId: string;
+  status: string;
+  completionPercentage: number | string;
+  contractAmount: number | string;
+  recommendedAmount: number | string;
+  report: {
+    evaluationMonth: number;
+    evaluationYear: number;
+    location: {
+      locationName: string;
+    };
+    adminReview?: {
+      remarks: string | null;
+    } | null;
+  };
+};
+
 export default function VCReviewPage() {
   const params = useParams();
   const recommendationId = params.recommendationId as string;
 
-  const [recommendation, setRecommendation] = useState<any>(null);
+  const [recommendation, setRecommendation] = useState<VCRecommendation | null>(null);
   const [remarks, setRemarks] = useState("");
 
   useEffect(() => {
@@ -64,6 +82,33 @@ export default function VCReviewPage() {
     }
   }
 
+  async function requestClarification() {
+    if (!remarks.trim()) {
+      alert("Remarks are required for clarification.");
+      return;
+    }
+
+    const response = await fetch("/api/vc-approval/clarification", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        recommendationId,
+        remarks,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("Clarification requested");
+      window.location.href = "/dashboard/vc-approval";
+    } else {
+      alert(data.message);
+    }
+  }
+
   if (!recommendation) {
     return <div className="p-6">Loading...</div>;
   }
@@ -77,6 +122,15 @@ export default function VCReviewPage() {
           <strong>Location:</strong>{" "}
           {recommendation.report.location.locationName}
         </p>
+        <p>
+          <strong>Month / Year:</strong>{" "}
+          {recommendation.report.evaluationMonth}/
+          {recommendation.report.evaluationYear}
+        </p>
+        <p>
+          <strong>Admin Remarks:</strong>{" "}
+          {recommendation.report.adminReview?.remarks || "-"}
+        </p>
 
         <p>
           <strong>Completion Percentage:</strong>{" "}
@@ -84,7 +138,7 @@ export default function VCReviewPage() {
         </p>
 
         <p>
-          <strong>Contract Amount:</strong>{" "}
+          <strong>Location Monthly Allocation:</strong>{" "}
           Rs. {Number(recommendation.contractAmount).toFixed(2)}
         </p>
 
@@ -106,19 +160,35 @@ export default function VCReviewPage() {
       </div>
 
       <div className="mt-6 flex gap-4">
-        <button
-          onClick={approve}
-          className="rounded bg-green-600 px-4 py-2 text-white"
-        >
-          Approve
-        </button>
+        {recommendation.status === "VC_PENDING" ? (
+          <>
+            <button
+              onClick={approve}
+              className="rounded bg-green-600 px-4 py-2 text-white"
+            >
+              Approve
+            </button>
 
-        <button
-          onClick={reject}
-          className="rounded bg-red-600 px-4 py-2 text-white"
-        >
-          Reject
-        </button>
+            <button
+              onClick={reject}
+              className="rounded bg-red-600 px-4 py-2 text-white"
+            >
+              Reject
+            </button>
+            <button
+              onClick={requestClarification}
+              className="rounded bg-yellow-500 px-4 py-2 text-white"
+            >
+              Request Clarification
+            </button>
+          </>
+        ) : (
+          <span className="rounded bg-green-100 px-4 py-2 font-semibold text-green-800">
+            {recommendation.status === "VC_APPROVED"
+              ? "Approved"
+              : recommendation.status.replaceAll("_", " ")}
+          </span>
+        )}
       </div>
     </div>
   );

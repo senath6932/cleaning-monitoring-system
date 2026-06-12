@@ -1,27 +1,49 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/workflow";
 
 export async function GET() {
   try {
-    const locations = await prisma.location.findMany({
+    const officer = await getCurrentUser("Evaluating Officer");
+
+    if (!officer) {
+      return NextResponse.json(
+        { message: "Access denied" },
+        { status: 403 }
+      );
+    }
+
+    const assignments = await prisma.locationOfficer.findMany({
       where: {
-        isActive: true,
+        officerId: officer.id,
+        location: {
+          isActive: true,
+        },
       },
-      select: {
-        locationId: true,
-        locationName: true,
+      include: {
+        location: {
+          select: {
+            locationId: true,
+            code: true,
+            locationName: true,
+          },
+        },
       },
       orderBy: {
-        locationName: "asc",
+        location: {
+          locationName: "asc",
+        },
       },
     });
 
-    return NextResponse.json(locations);
+    return NextResponse.json(
+      assignments.map((assignment) => assignment.location)
+    );
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { message: "Failed to load locations" },
+      { message: "Failed to load assigned locations" },
       { status: 500 }
     );
   }

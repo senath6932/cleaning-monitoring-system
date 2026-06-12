@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import { randomUUID } from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -8,34 +10,114 @@ async function main() {
   // =========================
   // ROLES
   // =========================
-  await prisma.userRole.upsert({
+  const evaluatingRole = await prisma.userRole.upsert({
     where: { roleName: "Evaluating Officer" },
     update: {},
-    create: { roleName: "Evaluating Officer" },
+    create: {
+      id: randomUUID(),
+      roleName: "Evaluating Officer",
+      roleCode: "EVALUATING_OFFICER",
+    },
   });
 
-  await prisma.userRole.upsert({
+  const adminRole = await prisma.userRole.upsert({
     where: { roleName: "Administration Officer" },
     update: {},
-    create: { roleName: "Administration Officer" },
+    create: {
+      id: randomUUID(),
+      roleName: "Administration Officer",
+      roleCode: "ADMINISTRATION_OFFICER",
+    },
   });
 
-  await prisma.userRole.upsert({
+  const gaaRole = await prisma.userRole.upsert({
     where: { roleName: "General Administration Officer" },
     update: {},
-    create: { roleName: "General Administration Officer" },
+    create: {
+      id: randomUUID(),
+      roleName: "General Administration Officer",
+      roleCode: "GENERAL_ADMINISTRATION_OFFICER",
+    },
   });
 
-  await prisma.userRole.upsert({
+  const vcRole = await prisma.userRole.upsert({
     where: { roleName: "Vice Chancellor" },
     update: {},
-    create: { roleName: "Vice Chancellor" },
+    create: {
+      id: randomUUID(),
+      roleName: "Vice Chancellor",
+      roleCode: "VICE_CHANCELLOR",
+    },
   });
 
   await prisma.userRole.upsert({
     where: { roleName: "Finance Officer" },
     update: {},
-    create: { roleName: "Finance Officer" },
+    create: {
+      id: randomUUID(),
+      roleName: "Finance Officer",
+      roleCode: "FINANCE_OFFICER",
+    },
+  });
+
+  await prisma.systemUser.upsert({
+    where: { email: "gaa@wusl.lk" },
+    update: {
+      passwordHash: await bcrypt.hash("gaa123", 10),
+      roleId: gaaRole.id,
+    },
+    create: {
+      id: randomUUID(),
+      fullName: "General Administration Officer",
+      email: "gaa@wusl.lk",
+      passwordHash: await bcrypt.hash("gaa123", 10),
+      roleId: gaaRole.id,
+    },
+  });
+
+  await prisma.systemUser.upsert({
+    where: { email: "admin@wusl.lk" },
+    update: {
+      passwordHash: await bcrypt.hash("admin123", 10),
+      roleId: adminRole.id,
+    },
+    create: {
+      id: randomUUID(),
+      fullName: "Administration Officer",
+      email: "admin@wusl.lk",
+      passwordHash: await bcrypt.hash("admin123", 10),
+      roleId: adminRole.id,
+    },
+  });
+
+  await prisma.systemUser.upsert({
+    where: { email: "officer@wusl.lk" },
+    update: {
+      passwordHash: await bcrypt.hash("officer123", 10),
+      roleId: evaluatingRole.id,
+    },
+    create: {
+      id: randomUUID(),
+      fullName: "Evaluating Officer",
+      email: "officer@wusl.lk",
+      passwordHash: await bcrypt.hash("officer123", 10),
+      roleId: evaluatingRole.id,
+    },
+  });
+
+  await prisma.systemUser.upsert({
+    where: { email: "vc@wusl.lk" },
+    update: {
+      passwordHash: await bcrypt.hash("vc123", 10),
+      roleId: vcRole.id,
+    },
+    create: {
+      id: randomUUID(),
+      fullName: "Vice Chancellor",
+      email: "vc@wusl.lk",
+      passwordHash: await bcrypt.hash("vc123", 10),
+      roleId: vcRole.id,
+    },
   });
 
   // =========================
@@ -110,6 +192,7 @@ async function main() {
         categoryId: monthlyCategory.categoryId,
       },
     ],
+    skipDuplicates: true,
   });
 
   // =========================
@@ -226,6 +309,7 @@ async function main() {
         contractAmount: 0,
       },
     ],
+    skipDuplicates: true,
   });
 
   console.log("✅ Seed completed");
