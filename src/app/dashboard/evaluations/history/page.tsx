@@ -86,8 +86,8 @@ export default function EvaluationHistoryPage() {
       <div>
         <h1 className="text-3xl font-bold">Evaluation History</h1>
         {submitted && (
-          <div className="mt-3 rounded border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-            Evaluation submitted successfully.
+          <div className="mt-3 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            Evaluation submitted successfully. Its status is Pending Approval until a reviewer takes action.
           </div>
         )}
         {error && (
@@ -123,7 +123,7 @@ export default function EvaluationHistoryPage() {
             "REJECTED",
           ].map((status) => (
             <option key={status} value={status}>
-              {status}
+              {statusLabel(status)}
             </option>
           ))}
         </select>
@@ -225,7 +225,15 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span className={`inline-flex rounded border px-2 py-1 text-xs font-semibold ${tone}`}>
-      {status}
+      {statusLabel(status)}
     </span>
   );
+}
+
+function statusLabel(status: string) {
+  if (["SUBMITTED", "RESUBMITTED"].includes(status)) {
+    return "PENDING APPROVAL";
+  }
+
+  return status.replaceAll("_", " ");
 }

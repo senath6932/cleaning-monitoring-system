@@ -1,6 +1,13 @@
 import type { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { findUserByEmail, verifyPassword } from "./auth";
+import { prisma } from "./prisma";
+
+type AuthenticatedUser = {
+  id: string;
+  role?: string;
+  designation?: string | null;
+};
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -37,7 +44,7 @@ export const authOptions: AuthOptions = {
           email: user.email,
           role: user.role.roleName,
           designation: user.designation,
-        } as any;
+        };
       },
     }),
   ],
@@ -51,11 +58,30 @@ export const authOptions: AuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
-        token.id = (user as any).id;
-        token.role = (user as any).role;
-        token.designation = (user as any).designation;
+        const authenticatedUser = user as AuthenticatedUser;
+        token.id = authenticatedUser.id;
+        token.role = authenticatedUser.role;
+        token.designation = authenticatedUser.designation;
+      }
+
+      if (trigger === "update" && token.id) {
+        const refreshedUser = await prisma.systemUser.findUnique({
+          where: {
+            id: String(token.id),
+          },
+          include: {
+            role: true,
+          },
+        });
+
+        if (refreshedUser) {
+          token.name = refreshedUser.fullName;
+          token.email = refreshedUser.email;
+          token.role = refreshedUser.role.roleName;
+          token.designation = refreshedUser.designation;
+        }
       }
 
       return token;
@@ -63,9 +89,9 @@ export const authOptions: AuthOptions = {
 
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id as string;
-        (session.user as any).role = token.role as string;
-        (session.user as any).designation = token.designation as
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.designation = token.designation as
           | string
           | null
           | undefined;

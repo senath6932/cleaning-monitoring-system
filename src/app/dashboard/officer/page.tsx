@@ -276,9 +276,17 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${tone}`}>
-      {status.replaceAll("_", " ")}
+      {statusLabel(status)}
     </span>
   );
+}
+
+function statusLabel(status: string) {
+  if (["SUBMITTED", "RESUBMITTED"].includes(status)) {
+    return "PENDING APPROVAL";
+  }
+
+  return status.replaceAll("_", " ");
 }
 
 function DashboardLoading() {

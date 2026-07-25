@@ -365,7 +365,7 @@ export async function POST(req: NextRequest) {
       message:
         status === "DRAFT"
           ? "Evaluation draft saved successfully."
-          : "Evaluation submitted successfully for administration review.",
+          : "Evaluation submitted successfully. It is pending approval until the administration officer takes action.",
     });
   } catch (error) {
     console.error("Failed to save evaluation", error);
