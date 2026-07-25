@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -116,20 +117,17 @@ export default function LoginPage() {
               />
             </label>
 
-            <label className="mb-4 block">
-              <span className="mb-2 block text-sm font-medium text-slate-700">
-                Password
-              </span>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                suppressHydrationWarning
-                autoComplete="current-password"
-              />
-            </label>
+            <PasswordInput
+              label="Password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              suppressHydrationWarning
+              className="mb-4"
+              labelClassName="block text-sm font-medium text-slate-700"
+              inputClassName="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 pr-12 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100"
+            />
 
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
               <label className="flex items-center gap-2">

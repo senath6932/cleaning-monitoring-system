@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { PasswordInput } from "@/components/ui/password-input";
 
 type Profile = {
   fullName: string;
@@ -274,18 +275,15 @@ function PasswordField({
   minLength?: number;
 }) {
   return (
-    <label className="block text-sm font-semibold text-slate-700">
-      {label}
-      <input
-        type="password"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        minLength={minLength}
-        autoComplete={label === "Current Password" ? "current-password" : "new-password"}
-        required
-        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-      />
-    </label>
+    <PasswordInput
+      label={label}
+      value={value}
+      onChange={onChange}
+      minLength={minLength}
+      autoComplete={label === "Current Password" ? "current-password" : "new-password"}
+      required
+      inputClassName="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 pr-11 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+    />
   );
 }
 
