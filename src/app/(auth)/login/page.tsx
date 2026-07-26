@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, type FormEvent } from "react";
 import { getSession, signIn } from "next-auth/react";
@@ -73,7 +73,7 @@ export default function LoginPage() {
                 Cleaning Management System
               </h1>
               <p className="mx-auto max-w-xl text-sm leading-6 text-slate-100/85 sm:text-base lg:text-lg">
-                University operations dashboard for cleaning, evaluations, reports, and approvals.
+                University operations home for cleaning, evaluations, reports, and approvals.
               </p>
             </div>
           </div>
@@ -156,3 +156,4 @@ export default function LoginPage() {
     </main>
   );
 }
+

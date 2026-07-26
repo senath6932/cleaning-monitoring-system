@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -81,11 +81,11 @@ export default function OfficerDashboardPage() {
   }
 
   if (session?.user?.role !== "Evaluating Officer") {
-    return <MessagePanel message="This dashboard is available only to evaluating officers." />;
+    return <MessagePanel message="This home page is available only to evaluating officers." />;
   }
 
   if (error || !data) {
-    return <MessagePanel message={error || "No dashboard data was returned."} />;
+    return <MessagePanel message={error || "No home data was returned."} />;
   }
 
   const period = `${monthNames[data.month - 1]} ${data.year}`;
@@ -309,3 +309,4 @@ function MessagePanel({ message }: { message: string }) {
     </div>
   );
 }
+

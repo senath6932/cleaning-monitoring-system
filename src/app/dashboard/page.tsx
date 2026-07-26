@@ -1,9 +1,18 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 
+type DashboardStats = {
+  totalUsers: number;
+  totalLocations: number;
+  totalEvaluations: number;
+  pendingReviews: number;
+  pendingVCApprovals: number;
+  approvedReports: number;
+};
+
 export default function Dashboard() {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
 
   useEffect(() => {
     fetch("/api/dashboard/stats")
@@ -12,13 +21,13 @@ export default function Dashboard() {
   }, []);
 
   if (!stats) {
-    return <div className="p-6">Loading Dashboard...</div>;
+    return <div className="p-6">Loading Home...</div>;
   }
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-800">Dashboard</h1>
+        <h1 className="text-3xl font-bold text-slate-800">Home</h1>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

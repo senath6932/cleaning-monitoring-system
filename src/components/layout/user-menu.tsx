@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
@@ -6,30 +6,30 @@ import { useEffect, useRef, useState } from "react";
 
 const roleLinks: Record<string, Array<{ label: string; href: string }>> = {
   "General Administration Officer": [
-    { label: "GAA Dashboard", href: "/dashboard/gaa" },
+    { label: "Home", href: "/dashboard/gaa" },
     { label: "User Management", href: "/dashboard/users" },
     { label: "Company Settings", href: "/dashboard/settings" },
     { label: "Final Reports", href: "/dashboard/final-reports" },
   ],
   "Administration Officer": [
-    { label: "Dashboard", href: "/dashboard/admin" },
+    { label: "Home", href: "/dashboard/admin" },
     { label: "Pending Reviews", href: "/dashboard/admin-review" },
     { label: "Reports", href: "/dashboard/reports" },
     { label: "Final Reports", href: "/dashboard/final-reports" },
   ],
   "Evaluating Officer": [
-    { label: "Dashboard", href: "/dashboard/officer" },
+    { label: "Home", href: "/dashboard/officer" },
     { label: "New Evaluation", href: "/dashboard/evaluations" },
     { label: "Evaluation History", href: "/dashboard/evaluations/history" },
   ],
   "Vice Chancellor": [
-    { label: "Dashboard", href: "/dashboard/vc" },
+    { label: "Home", href: "/dashboard/vc" },
     { label: "VC Approvals", href: "/dashboard/vc-approval" },
     { label: "Reports", href: "/dashboard/reports" },
     { label: "Final Reports", href: "/dashboard/final-reports" },
   ],
   "Finance Officer": [
-    { label: "Dashboard", href: "/dashboard/finance" },
+    { label: "Home", href: "/dashboard/finance" },
     { label: "Reports", href: "/dashboard/reports" },
     { label: "Final Reports", href: "/dashboard/final-reports" },
   ],
@@ -53,7 +53,7 @@ export default function UserMenu({
     .join("")
     .toUpperCase();
   const links = roleLinks[user?.role ?? ""] ?? [
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Home", href: "/dashboard" },
   ];
 
   useEffect(() => {
@@ -207,3 +207,5 @@ function LogoutIcon() {
     </svg>
   );
 }
+
+

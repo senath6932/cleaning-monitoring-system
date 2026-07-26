@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -89,7 +89,7 @@ export default function GaaDashboardPage() {
 
   if (session?.user?.role !== "General Administration Officer") {
     if (status === "loading") return <DashboardLoading />;
-    return <MessagePanel title="Access denied" message="This dashboard is available only to the General Administration Officer." />;
+    return <MessagePanel title="Access denied" message="This home page is available only to the General Administration Officer." />;
   }
 
   if (loading) {
@@ -97,7 +97,7 @@ export default function GaaDashboardPage() {
   }
 
   if (error || !data) {
-    return <MessagePanel title="Dashboard unavailable" message={error || "No dashboard data was returned."} />;
+    return <MessagePanel title="Home unavailable" message={error || "No home data was returned."} />;
   }
 
   const visibleProgress = data.monthlyProgress.slice(0, new Date().getMonth() + 1);
@@ -242,3 +242,4 @@ function DashboardLoading() {
 function MessagePanel({ title, message }: { title: string; message: string }) {
   return <div className="rounded-2xl border border-red-200 bg-red-50 p-6"><h1 className="font-bold text-red-800">{title}</h1><p className="mt-2 text-sm text-red-700">{message}</p></div>;
 }
+

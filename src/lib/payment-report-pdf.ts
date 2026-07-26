@@ -1,4 +1,4 @@
-type PaymentReport = {
+﻿type PaymentReport = {
   recommendationId: string;
   completionPercentage: unknown;
   contractAmount: unknown;

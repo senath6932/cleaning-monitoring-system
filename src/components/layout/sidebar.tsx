@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,7 +21,7 @@ export default function Sidebar({
 
   const menuItems = [
     {
-      name: "Dashboard",
+      name: "Home",
       href:
         role === "General Administration Officer"
           ? "/dashboard/gaa"
@@ -146,7 +146,7 @@ export default function Sidebar({
                 Cleaning System
               </h1>
               <p className="mt-1 text-sm text-slate-300">
-                University operations dashboard
+                University operations home
               </p>
             </div>
             <button
@@ -246,3 +246,4 @@ function LogoutIcon() {
     </svg>
   );
 }
+

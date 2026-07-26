@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -84,11 +84,11 @@ export default function AdminDashboardPage() {
   }
 
   if (session?.user?.role !== "Administration Officer") {
-    return <MessagePanel message="This dashboard is available only to Administration Officers." />;
+    return <MessagePanel message="This home page is available only to Administration Officers." />;
   }
 
   if (error || !data) {
-    return <MessagePanel message={error || "No dashboard data was returned."} />;
+    return <MessagePanel message={error || "No home data was returned."} />;
   }
 
   return (
@@ -295,3 +295,4 @@ function MessagePanel({ message }: { message: string }) {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-type PdfReport = {
+﻿type PdfReport = {
   reportId: string;
   evaluationMonth: number;
   evaluationYear: number;
@@ -154,7 +154,7 @@ export function generateEvaluationReportPdf(report: PdfReport) {
       "50 800 Td",
       "14 TL",
       ...pageLines.map((line, index) =>
-        `${index === 0 ? "" : "T* " }(${escapePdf(text(line))}) Tj`
+        `${index === 0 ? "" : "T* "}(${escapePdf(text(line))}) Tj`
       ),
       "ET",
     ].join("\n");

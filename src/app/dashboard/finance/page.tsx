@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 export default function FinanceDashboardPage() {
   return (
@@ -9,7 +9,7 @@ export default function FinanceDashboardPage() {
             Finance Officer
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">
-            Finance Dashboard
+            Finance Home
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
             Process approved payments, track vouchers and cheques, and maintain
@@ -42,4 +42,5 @@ export default function FinanceDashboardPage() {
     </main>
   );
 }
+
 

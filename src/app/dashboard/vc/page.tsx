@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 export default function VcDashboardPage() {
   return (
@@ -9,7 +9,7 @@ export default function VcDashboardPage() {
             Vice Chancellor
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">
-            VC Dashboard
+            VC Home
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
             Approve or reject payment recommendations after administrative
@@ -42,4 +42,5 @@ export default function VcDashboardPage() {
     </main>
   );
 }
+
 
